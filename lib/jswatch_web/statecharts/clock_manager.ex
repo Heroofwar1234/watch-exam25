@@ -86,4 +86,6 @@ defmodule JswatchWeb.ClockManager do
     GenServer.cast(state.ui_pid, {:set_date_display, format_date(new_date, true, Year)})
     {:noreply, %{state | date: new_date}}
   end
+
+  #Top left y botton left cambian el modo, bottom right cicla y top right incrementa
 end
