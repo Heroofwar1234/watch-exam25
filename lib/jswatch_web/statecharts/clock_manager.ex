@@ -2,7 +2,7 @@ defmodule JswatchWeb.ClockManager do
   use GenServer
 
 
-  @ciclable [:Day, :Month, :Year]
+  @change [:Day, :Month, :Year]
 
   def format_date(date, show, selection) do
     day = if date.day < 10, do: "0#{date.day}", else: "#{date.day}"
@@ -26,7 +26,7 @@ defmodule JswatchWeb.ClockManager do
     Process.send_after(self(), :working_working, 1000)
     GenServer.cast(ui, {:set_time_display, Time.truncate(time, :second) |> Time.to_string })
     GenServer.cast(ui, {:set_date_display, format_date(date, true, Day) })
-    {:ok, %{ui_pid: ui, time: time, date: date, alarm: alarm, st1: Working, st2: Idle, date_edit: false, date_field: Day}}
+    {:ok, %{ui_pid: ui, time: time, date: date, alarm: alarm, st1: Working, st2: Idle, date_edit: false, selection: Day}}
   end   #Agregar Campos para parar y seleccionar campo para cambiar , default es day
 
   def handle_info(:working_working, %{ui_pid: ui, time: time, alarm: alarm, st1: Working} = state) do
@@ -44,7 +44,7 @@ defmodule JswatchWeb.ClockManager do
   # Camviar a modo editar
   def handle_info(:"top-left-pressed", %{date_edit: false} = state) do
     GenServer.cast(state.ui_pid, {:set_date_display, format_date(state.date, true, Day)})
-    {:noreply, %{state | date_edit: true, date_field: Day}}
+    {:noreply, %{state | date_edit: true, selection: Day}}
     #cambia date_edit a true
   end
    def handle_info(:"bottom-left-pressed", %{date_edit: true} = state) do
@@ -55,9 +55,20 @@ defmodule JswatchWeb.ClockManager do
   end
 #1
     # Ciclar campo por cambiar
-  def handle_info(:"bottom-right-pressed", %{date_edit: true, date_field: current} = state) do
-    next = Enum.at(@ciclable, rem(Enum.find_index(@ciclable, &(&1 == current)) + 1, 3))
+  def handle_info(:"bottom-right-pressed", %{date_edit: true, selection: current} = state) do
+    next = Enum.at(@change, rem(Enum.find_index(@change, &(&1 == current)) + 1, 3))
     GenServer.cast(state.ui_pid, {:set_date_display, format_date(state.date, true, next)})
-    {:noreply, %{state | date_field: next}}
+    {:noreply, %{state | selection: next}}
   end
+
+    # AGREGAR 1 a DAY
+  def handle_info(:"top-right-pressed", %{date_edit: true, selection: Day, date: d} = state) do
+    new_day = d.day + 1
+    last = :calendar.last_day_of_the_month(d.year, d.month)
+    new_date = %{d | day: if new_day > last, do: 1, else: new_day}
+    GenServer.cast(state.ui_pid, {:set_date_display, format_date(new_date, true, Day)})
+    {:noreply, %{state | date: new_date}}
+  end
+
+
 end
