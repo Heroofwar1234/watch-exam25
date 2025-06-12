@@ -80,5 +80,10 @@ defmodule JswatchWeb.ClockManager do
     {:noreply, %{state | date: new_date}}
   end
 
-
+    # AGREGAR 1 a YEAR
+  def handle_info(:"top-right-pressed", %{date_edit: true, selection: Year, date: d} = state) do
+    new_date = %{d | year: d.year + 1}
+    GenServer.cast(state.ui_pid, {:set_date_display, format_date(new_date, true, Year)})
+    {:noreply, %{state | date: new_date}}
+  end
 end
