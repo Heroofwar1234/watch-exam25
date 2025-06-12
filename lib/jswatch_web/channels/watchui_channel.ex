@@ -17,6 +17,11 @@ defmodule JswatchWeb.WatchUIChannel do
     {:noreply, socket}
   end
 
+  def handle_cast({:set_date_display, str}, socket) do
+    push(socket, "setDateDisplay", %{date: str})
+    {:noreply, socket}
+  end
+
   def handle_cast(:set_indiglo, socket) do
     push(socket, "setIndiglo", %{})
     {:noreply, socket}
