@@ -53,7 +53,7 @@ defmodule JswatchWeb.ClockManager do
     #Cambia a falso
 
   end
-
+#1
     # Ciclar campo por cambiar
   def handle_info(:"bottom-right-pressed", %{date_edit: true, date_field: current} = state) do
     next = Enum.at(@ciclable, rem(Enum.find_index(@ciclable, &(&1 == current)) + 1, 3))
