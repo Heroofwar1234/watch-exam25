@@ -70,5 +70,15 @@ defmodule JswatchWeb.ClockManager do
     {:noreply, %{state | date: new_date}}
   end
 
+     # AGREGAR 1 a MONTH
+  def handle_info(:"top-right-pressed", %{date_edit: true, selection: Month, date: d} = state) do
+    new_month = rem(d.month, 12) + 1
+    last = :calendar.last_day_of_the_month(d.year, new_month)
+    new_day = min(d.day, last)
+    new_date = %{d | month: new_month, day: new_day}
+    GenServer.cast(state.ui_pid, {:set_date_display, format_date(new_date, true, Month)})
+    {:noreply, %{state | date: new_date}}
+  end
+
 
 end
